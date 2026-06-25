@@ -1,0 +1,165 @@
+{
+  "tv_btc": {
+    "RSI": 30.5,
+    "StochK": 29.06,
+    "CCI": -149.51,
+    "ADX": 34.74,
+    "AO": -4094.59,
+    "Mom": -6074.45,
+    "MACD": -2180.33,
+    "StochRSI": 51.02,
+    "WPR": -93.05,
+    "BBP": -4684.18,
+    "UO": 38.25,
+    "EMA10": 63112.45,
+    "EMA20": 64583.22,
+    "EMA50": 68477.14,
+    "EMA200": 77388.72,
+    "S1": 69841.25,
+    "S2": 66008.12,
+    "S3": 55670.61,
+    "R1": 80178.76,
+    "R2": 86683.14,
+    "Pivot": 76345.63
+  },
+  "tv_eth": {
+    "RSI": 31.02,
+    "StochK": 27.76,
+    "CCI": -119.17,
+    "ADX": 32.66,
+    "AO": -120.19,
+    "Mom": -152.75,
+    "MACD": -72.51,
+    "StochRSI": 48.48,
+    "WPR": -93.28,
+    "BBP": -158.73,
+    "UO": 39.61,
+    "EMA10": 1690.37,
+    "EMA20": 1737.18,
+    "EMA50": 1888.88,
+    "EMA200": 2332.17,
+    "S1": 1841.43,
+    "S2": 1675.84,
+    "S3": 1219.1,
+    "R1": 2298.17,
+    "R2": 2589.32,
+    "Pivot": 2132.58
+  },
+  "cg_btc_ls": {
+    "taker_long_pct": 47.51,
+    "taker_short_pct": 52.49,
+    "taker_long_vol": "140.11亿",
+    "taker_short_vol": "154.78亿",
+    "bn_retail": 2.65,
+    "bn_whale_count": 2.78,
+    "bn_whale_pos": 1.08,
+    "okx_retail": 2.24,
+    "okx_whale_count": 0.9,
+    "okx_whale_pos": 1.5,
+    "bybit_retail": 1.83,
+    "bybit_whale_count": 1.83,
+    "bybit_whale_pos": 0.99,
+    "main_force_binance": "极度看空",
+    "main_force_okx": "极度看多",
+    "main_force_bybit": "极度看空"
+  },
+  "cg_eth_ls": {
+    "ratio": 1.0442,
+    "long_pct": 51.08,
+    "short_pct": 48.92,
+    "taker_long_vol": "95.31亿",
+    "taker_short_vol": "106.61亿",
+    "bn_retail": 2.66,
+    "bn_whale_count": 2.5,
+    "bn_whale_pos": 1.2,
+    "okx_retail": 3.24,
+    "okx_whale_count": 1.5,
+    "okx_whale_pos": 1.5,
+    "bybit_retail": 1.8,
+    "bybit_whale_count": 1.8,
+    "bybit_whale_pos": 1.0,
+    "main_force_binance": "看多",
+    "main_force_okx": "极度看空",
+    "main_force_bybit": "极度看空"
+  },
+  "cg_btc_large": [
+    {
+      "time": "02:25:28",
+      "price": 59732.9,
+      "amount": 121700,
+      "pair": "BTCUSDT"
+    },
+    {
+      "time": "02:25:14",
+      "price": 59750,
+      "amount": 781400,
+      "pair": "BTCUSDT"
+    },
+    {
+      "time": "02:25:04",
+      "price": 59686.1,
+      "amount": 697600,
+      "pair": "BTCUSDT"
+    },
+    {
+      "time": "02:25:01",
+      "price": 59686.9,
+      "amount": 700200,
+      "pair": "BTC-USDT-SWAP"
+    },
+    {
+      "time": "02:24:22",
+      "price": 59655.7,
+      "amount": 584900,
+      "pair": "BTC-USDT-SWAP"
+    },
+    {
+      "time": "02:22:08",
+      "price": 59613.3,
+      "amount": 691900,
+      "pair": "BTC-USDT-SWAP"
+    },
+    {
+      "time": "02:22:07",
+      "price": 59581.4,
+      "amount": 875200,
+      "pair": "BTC-USDT-SWAP"
+    },
+    {
+      "time": "02:20:14",
+      "price": 59649.4,
+      "amount": 2163500,
+      "pair": "BTC-USDT-SWAP"
+    },
+    {
+      "time": "02:19:59",
+      "price": 59639.3,
+      "amount": 1100700,
+      "pair": "BTC-USDT-SWAP"
+    },
+    {
+      "time": "02:19:50",
+      "price": 59640,
+      "amount": 776500,
+      "pair": "BTC-USDT-SWAP"
+    },
+    {
+      "time": "02:11:23",
+      "price": 59500.1,
+      "amount": 1985600,
+      "pair": "BTC-USD-SWAP"
+    }
+  ],
+  "cg_liquidation": {
+    "btc_24h": 346.76,
+    "eth_24h": 195.54,
+    "total_24h": 866.94,
+    "btc_4h": 228.58,
+    "eth_4h": 156.18,
+    "long_pct": 90.2,
+    "short_pct": 9.8,
+    "largest_order": 12.01,
+    "largest_exchange": "Binance"
+  },
+  "update_time": "2026-06-25 03:25:00"
+}
