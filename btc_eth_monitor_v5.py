@@ -1,12 +1,12 @@
 #!/usr/bin/env python3.11
 """
-BTC + ETH 实时监控脚本 v5（干净版）
+BTC + ETH 实时监控脚本 v5（干净版 · 动态关键位）
 - Gate.io API 无缓存实时数据（30秒检查）
 - BTC价格变动≥0.3%、ETH≥0.2%立刻推企微
 - 触及关键位（容差0.3%）立刻推企微 + 实时数据
 - 启动时推送通知（含当前价格+关键位列表）
 - 防掉线：失败重试 + 守护进程自动重启
-- 无链上定时推送 / 无终极分析自动推送
+- 关键位从 market_data.json 动态读取，读取失败用兜底硬编码
 """
 
 import requests
@@ -20,24 +20,9 @@ from datetime import datetime
 # ============ 配置区 ============
 WECHAT_WEBHOOK = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=fb585df5-b652-481d-ba71-4f0dddbc2aee"
 
-# 关键位（TV Pivot Classic实时计算，需要定期手动更新）
-# BTC: S2=59376, S1=60229, P=76346, R1=62568, R2=64054
-# ETH: S2=1604,  S1=1625,  P=2133,  R1=1680, R2=1713
-BTC_LEVELS = {
-    58300: "🔴 BTC逼近S3 $58,300！破位看$55,000，极度危险",
-    59376: "🔴 BTC触及S2强支撑 $59,376！超卖反弹窗口，严格止损",
-    60229: "🟡 BTC触及S1支撑 $60,229！关注止跌信号",
-    62568: "🟠 BTC触及R1压力 $62,568！短期可能受阻",
-    64054: "🔴 BTC触及R2强压力 $64,054！做空机会",
-}
-
-ETH_LEVELS = {
-    1580: "🔴 ETH逼近S3 $1,580！破位看$1,500，极度危险",
-    1604: "🔴 ETH触及S2强支撑 $1,604！超卖，但破位风险高",
-    1625: "🟡 ETH触及S1支撑 $1,625！关注止跌信号",
-    1680: "🟠 ETH触及R1压力 $1,680！短期可能受阻",
-    1713: "🔴 ETH触及R2强压力 $1,713！做空机会",
-}
+# 关键位字典（在 main() 里由 get_key_levels() 动态填充）
+BTC_LEVELS = {}
+ETH_LEVELS = {}
 
 # 价格变动阈值
 BTC_CHANGE_THRESHOLD = 0.003   # 0.3%
@@ -47,6 +32,7 @@ LEVEL_TOLERANCE_PCT   = 0.003  # 关键位容差 0.3%
 CHECK_INTERVAL     = 30     # 价格检查间隔（秒）
 MAX_FAILS_BEFORE_EXIT = 5
 HEARTBEAT_FILE     = "/workspace/monitor_v5.heartbeat"
+MARKET_DATA_FILE   = "/tmp/market_data.json"
 LOG_FILE           = "/workspace/monitor_v5.log"
 FAIL_LOG           = "/workspace/monitor_v5_fail.log"
 
@@ -88,6 +74,53 @@ def update_heartbeat():
         pass
 
 
+# ==================== 动态关键位（从 market_data.json 读取）====================
+def _load_market_data():
+    """加载 market_data.json，失败时返回 {}"""
+    try:
+        with open(MARKET_DATA_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def get_key_levels(symbol="BTC"):
+    """
+    从 market_data.json 的 key_levels 字段读取关键位
+    返回 {price_float: "名称"} 字典
+    """
+    data = _load_market_data()
+    key = symbol  # JSON里就是 "BTC" / "ETH"
+    raw_levels = data.get("key_levels", {}).get(key, [])
+    result = {}
+    if raw_levels and isinstance(raw_levels, list):
+        for lv in raw_levels:
+            try:
+                price = float(lv.get("price", 0))
+                name  = lv.get("name", "")
+                if price > 0:
+                    result[price] = name
+            except Exception:
+                continue
+    # 兜底：JSON 无数据时用硬编码
+    if not result:
+        if key == "BTC":
+            result = {
+                80000: "4H支撑", 82000: "4H支撑",
+                85000: "日线支撑", 88000: "日线压力",
+                90000: "4H压力",   92000: "周线压力",
+                95000: "历史前高"
+            }
+        else:
+            result = {
+                2000: "4H支撑", 2100: "日线支撑",
+                2200: "4H压力",  2300: "日线压力",
+                2500: "周线压力"
+            }
+    return result
+
+
+# ==================== 原有函数 ====================
 def get_price(contract, retry=3):
     """获取Gate.io期货实时价格，失败重试"""
     for i in range(retry):
@@ -123,10 +156,16 @@ def get_gate_ticker(contract):
 def main():
     start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print("=" * 60)
-    print("BTC + ETH 实时监控 v5 启动")
+    print("BTC + ETH 实时监控 v5 启动（动态关键位）")
     print(f"启动时间: {start_time}")
     print(f"检查间隔: {CHECK_INTERVAL}秒 | 无定时推送")
     print("=" * 60, flush=True)
+
+    # ★ 启动时动态加载关键位
+    global BTC_LEVELS, ETH_LEVELS
+    BTC_LEVELS = get_key_levels("BTC")
+    ETH_LEVELS = get_key_levels("ETH")
+    print(f"  📊 动态关键位已加载: BTC {len(BTC_LEVELS)}个, ETH {len(ETH_LEVELS)}个")
 
     # 启动通知（含当前价格+关键位列表）
     init_btc = get_price("BTC_USDT")
@@ -136,7 +175,18 @@ def main():
     price_line = ""
     if init_btc and init_eth:
         price_line = f"\n💰 当前价: BTC ${init_btc:.1f} | ETH ${init_eth:.2f}"
-    startup_msg = f"🟢 监控系统 v5 已启动\n⏰ {start_time}{price_line}\n{'─'*24}\n📊 监控配置\n• BTC变动阈值: 0.3%\n• ETH变动阈值: 0.2%\n• BTC关键位: {btc_levels_str}\n• ETH关键位: {eth_levels_str}\n• 定时推送: 无（仅价格变动+关键位警报）\n⚠️ 有变动立刻通知"
+    startup_msg = (
+        f"🟢 监控系统 v5 已启动（动态关键位）\n"
+        f"⏰ {start_time}{price_line}\n"
+        f"{'─'*24}\n"
+        f"📊 监控配置\n"
+        f"• BTC变动阈值: 0.3%\n"
+        f"• ETH变动阈值: 0.2%\n"
+        f"• BTC关键位: {btc_levels_str}\n"
+        f"• ETH关键位: {eth_levels_str}\n"
+        f"• 定时推送: 无（仅价格变动+关键位警报）\n"
+        f"⚠️ 有变动立刻通知"
+    )
     send_wechat(startup_msg)
 
     # 从日志恢复基准价
